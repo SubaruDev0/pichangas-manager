@@ -1,0 +1,114 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="grid md:grid-cols-3 gap-8">
+    <!-- Left Column: Match Info & Actions -->
+    <div class="md:col-span-1 space-y-6">
+        <div class="glass p-6 rounded-xl">
+            <h1 class="text-2xl font-bold text-emerald-400 mb-2">{{ match.location }}</h1>
+            <p class="text-slate-300 text-lg mb-4">{{ match.date|date:"l d F, H:i" }}</p>
+
+            <div class="bg-slate-800/50 p-4 rounded-lg mb-6">
+                <p class="text-sm text-slate-400">Costo Total</p>
+                <p class="text-xl font-mono">${{ match.total_cost }}</p>
+            </div>
+
+            <div class="bg-emerald-900/30 border border-emerald-500/30 p-4 rounded-lg mb-6">
+                <p class="text-sm text-emerald-300 mb-1">Cuota por Persona</p>
+                <p class="text-3xl font-bold text-emerald-400">${{ cost_per_person }}</p>
+                <p class="text-xs text-emerald-500/70 mt-1">({{ confirmed_count }} confirmados)</p>
+            </div>
+
+            {% if match.organizer_info %}
+            <div class="bg-slate-800/50 p-4 rounded-lg text-sm">
+                <p class="font-bold text-slate-300 mb-2">Datos de Pago:</p>
+                <pre class="whitespace-pre-wrap font-sans text-slate-400">{{ match.organizer_info }}</pre>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="glass p-6 rounded-xl">
+            <h3 class="font-bold mb-4">¿Vas a ir?</h3>
+            <form action="{% url 'toggle_attendance' match.id %}" method="post" class="space-y-3">
+                {% csrf_token %}
+                {% if user.is_authenticated %}
+                <button type="submit"
+                    class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-lg transition">
+                    {% if user in match.attendances.all %}Me bajo{% else %}Me sumo{% endif %}
+                </button>
+                {% else %}
+                <input type="text" name="name" placeholder="Tu Nombre" required
+                    class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white focus:ring-2 focus:ring-emerald-500 outline-none">
+                <button type="submit"
+                    class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-lg transition">
+                    Sumarme
+                </button>
+                {% endif %}
+            </form>
+
+            {% if user.is_authenticated %}
+            <div class="mt-4 pt-4 border-t border-slate-700">
+                <p class="text-sm mb-2 text-slate-400">Agregar invitado:</p>
+                <form action="{% url 'toggle_attendance' match.id %}" method="post" class="flex gap-2">
+                    {% csrf_token %}
+                    <input type="text" name="name" placeholder="Nombre" required
+                        class="flex-1 bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <button type="submit"
+                        class="bg-slate-700 hover:bg-slate-600 px-3 rounded-lg text-white transition">+</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="glass p-6 rounded-xl">
+            <h3 class="font-bold mb-4">Admin</h3>
+            <a href="{% url 'shuffle_teams' match.id %}"
+                class="block w-full text-center bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition">
+                Sortear Equipos 🎲
+            </a>
+        </div>
+    </div>
+
+    <!-- Right Column: Attendance List -->
+    <div class="md:col-span-2">
+        <div class="glass p-6 rounded-xl">
+            <h2 class="text-xl font-bold mb-6 flex justify-between items-center">
+                Asistencia
+                <span class="text-sm font-normal text-slate-400">{{ confirmed_count }} Confirmados</span>
+            </h2>
+
+            <div class="space-y-3">
+                {% for attendance in attendances %}
+                {% if attendance.is_confirmed %}
+                <div
+                    class="flex items-center justify-between bg-slate-800/40 p-3 rounded-lg border border-slate-700/50">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold
+                            {% if attendance.team == 'WHITE' %}bg-white text-slate-900
+                            {% elif attendance.team == 'COLOR' %}bg-emerald-500 text-white
+                            {% else %}bg-slate-700 text-slate-300{% endif %}">
+                            {{ attendance.player_name|slice:":1"|upper }}
+                        </div>
+                        <div>
+                            <p class="font-medium">{{ attendance.player_name }}</p>
+                            {% if attendance.team %}
+                            <span class="text-xs opacity-70">Equipo {{ attendance.get_team_display }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <a href="{% url 'mark_paid' match.id attendance.id %}" class="px-3 py-1 rounded-full text-xs font-bold transition
+                           {% if attendance.has_paid %}bg-green-500/20 text-green-400 hover:bg-green-500/30
+                           {% else %}bg-red-500/20 text-red-400 hover:bg-red-500/30{% endif %}">
+                            {% if attendance.has_paid %}PAGADO{% else %}PENDIENTE{% endif %}
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

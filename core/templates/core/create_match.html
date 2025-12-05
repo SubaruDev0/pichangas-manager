@@ -1,0 +1,39 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="max-w-md mx-auto glass p-8 rounded-xl">
+    <h1 class="text-2xl font-bold mb-6 text-emerald-400">Nuevo Partido</h1>
+
+    <form method="post" class="space-y-4">
+        {% csrf_token %}
+        <div>
+            <label class="block text-sm font-medium mb-1">Fecha y Hora</label>
+            <input type="datetime-local" name="date" required
+                class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white focus:ring-2 focus:ring-emerald-500 outline-none">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium mb-1">Lugar</label>
+            <input type="text" name="location" placeholder="Ej: Plaza 7" required
+                class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white focus:ring-2 focus:ring-emerald-500 outline-none">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium mb-1">Costo Total ($)</label>
+            <input type="number" name="total_cost" placeholder="21000" required
+                class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white focus:ring-2 focus:ring-emerald-500 outline-none">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium mb-1">Datos de Pago</label>
+            <textarea name="organizer_info" rows="3" placeholder="Rut, Banco, etc."
+                class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white focus:ring-2 focus:ring-emerald-500 outline-none"></textarea>
+        </div>
+
+        <button type="submit"
+            class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-lg transition mt-4">
+            Crear Partido
+        </button>
+    </form>
+</div>
+{% endblock %}

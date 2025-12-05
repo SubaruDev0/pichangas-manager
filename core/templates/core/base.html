@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pichanga Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #0f172a; /* Slate 900 */
+            color: #e2e8f0; /* Slate 200 */
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <nav class="p-4 glass mb-8">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="{% url 'match_list' %}" class="text-2xl font-bold text-emerald-400">⚽ Pichanga Manager</a>
+            <div>
+                <a href="{% url 'create_match' %}" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition">Crear Partido</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 flex-grow">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="p-4 text-center text-slate-500 mt-8">
+        <p>&copy; 2025 Pichanga Manager</p>
+    </footer>
+</body>
+</html>
