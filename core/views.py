@@ -105,8 +105,33 @@ def shuffle_teams(request, match_id):
     return redirect('match_detail', match_id=match_id)
 
 @login_required
+def reset_teams(request, match_id):
+    match = get_object_or_404(Match, pk=match_id)
+    if request.user != match.creator:
+        return redirect('match_detail', match_id=match_id)
+    
+    # Quitar todos los equipos asignados
+    for attendance in match.attendances.all():
+        attendance.team = None
+        attendance.save()
+    
+    return redirect('match_detail', match_id=match_id)
+
+@login_required
 def delete_match(request, match_id):
     match = get_object_or_404(Match, pk=match_id)
     if request.user == match.creator:
         match.delete()
     return redirect('match_list')
+
+@login_required
+def remove_player(request, match_id, attendance_id):
+    match = get_object_or_404(Match, pk=match_id)
+    if request.user != match.creator:
+        return redirect('match_detail', match_id=match_id)
+    
+    attendance = get_object_or_404(Attendance, pk=attendance_id)
+    if attendance.match == match:
+        attendance.delete()
+    
+    return redirect('match_detail', match_id=match_id)
