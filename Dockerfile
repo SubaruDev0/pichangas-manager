@@ -17,5 +17,5 @@ COPY . /app/
 # Collect static files
 RUN python manage.py collectstatic --noinput
 
-# Run gunicorn
-CMD gunicorn pichanga_manager.wsgi:application --bind 0.0.0.0:8000
+# Run migrations and then gunicorn
+CMD sh -c "python manage.py migrate && gunicorn pichanga_manager.wsgi:application --bind 0.0.0.0:8000"
