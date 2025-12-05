@@ -21,8 +21,18 @@
     <nav class="p-4 glass mb-8">
         <div class="container mx-auto flex justify-between items-center">
             <a href="{% url 'match_list' %}" class="text-2xl font-bold text-emerald-400">⚽ Pichanga Manager</a>
-            <div>
-                <a href="{% url 'create_match' %}" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition">Crear Partido</a>
+            <div class="flex gap-3 items-center">
+                {% if user.is_authenticated %}
+                    <span class="text-slate-300">Hola, {{ user.username }}</span>
+                    <a href="{% url 'create_match' %}" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition">Crear Partido</a>
+                    <form method="POST" action="{% url 'account_logout' %}" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg transition">Salir</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'account_login' %}" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg transition">Iniciar Sesión</a>
+                    <a href="{% url 'account_signup' %}" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition">Registrarse</a>
+                {% endif %}
             </div>
         </div>
     </nav>
@@ -33,7 +43,7 @@
     </main>
 
     <footer class="p-4 text-center text-slate-500 mt-8">
-        <p>&copy; 2025 Pichanga Manager</p>
+        <p>&copy; 2025 por SubaruDev</p>
     </footer>
 </body>
 </html>

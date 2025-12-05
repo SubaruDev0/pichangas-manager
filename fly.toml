@@ -21,7 +21,9 @@ primary_region = "gru"
   timeout = "5s"
   grace_period = "10s"
   method = "GET"
-  path = "/admin/"
+  path = "/"
+  [http_service.checks.headers]
+    X-Forwarded-Proto = "https"
 
 [mounts]
   source = "pichanga_data"
