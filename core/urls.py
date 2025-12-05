@@ -8,4 +8,5 @@ urlpatterns = [
     path('match/<int:match_id>/join/', views.toggle_attendance, name='toggle_attendance'),
     path('match/<int:match_id>/paid/<int:attendance_id>/', views.mark_paid, name='mark_paid'),
     path('match/<int:match_id>/shuffle/', views.shuffle_teams, name='shuffle_teams'),
+    path('match/<int:match_id>/delete/', views.delete_match, name='delete_match'),
 ]

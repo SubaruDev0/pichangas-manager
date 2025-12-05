@@ -10,6 +10,9 @@ def match_list(request):
     return render(request, 'core/match_list.html', {'matches': matches})
 
 def create_match(request):
+    if not request.user.is_authenticated:
+        return redirect('account_login')
+        
     if request.method == 'POST':
         date = request.POST.get('date')
         location = request.POST.get('location')
@@ -20,7 +23,8 @@ def create_match(request):
             date=date,
             location=location,
             total_cost=total_cost,
-            organizer_info=organizer_info
+            organizer_info=organizer_info,
+            creator=request.user
         )
         return redirect('match_list')
     return render(request, 'core/create_match.html')
@@ -34,18 +38,20 @@ def match_detail(request, match_id):
     if confirmed_count > 0:
         cost_per_person = match.total_cost / confirmed_count
 
+    is_creator = request.user == match.creator
+
     return render(request, 'core/match_detail.html', {
         'match': match,
         'attendances': attendances,
         'confirmed_count': confirmed_count,
         'cost_per_person': int(cost_per_person),
+        'is_creator': is_creator,
     })
 
 def toggle_attendance(request, match_id):
     match = get_object_or_404(Match, pk=match_id)
     if request.method == 'POST':
         name = request.POST.get('name')
-        # If user is logged in, use them, otherwise use name
         if request.user.is_authenticated and not name:
             attendance, created = Attendance.objects.get_or_create(
                 match=match,
@@ -56,7 +62,6 @@ def toggle_attendance(request, match_id):
                 attendance.is_confirmed = not attendance.is_confirmed
                 attendance.save()
         else:
-            # Guest handling
             if name:
                 Attendance.objects.create(
                     match=match,
@@ -65,14 +70,23 @@ def toggle_attendance(request, match_id):
                 )
     return redirect('match_detail', match_id=match_id)
 
+@login_required
 def mark_paid(request, match_id, attendance_id):
+    match = get_object_or_404(Match, pk=match_id)
+    if request.user != match.creator:
+        return redirect('match_detail', match_id=match_id)
+        
     attendance = get_object_or_404(Attendance, pk=attendance_id)
     attendance.has_paid = not attendance.has_paid
     attendance.save()
     return redirect('match_detail', match_id=match_id)
 
+@login_required
 def shuffle_teams(request, match_id):
     match = get_object_or_404(Match, pk=match_id)
+    if request.user != match.creator:
+        return redirect('match_detail', match_id=match_id)
+
     confirmed = list(match.attendances.filter(is_confirmed=True))
     random.shuffle(confirmed)
     
@@ -89,3 +103,10 @@ def shuffle_teams(request, match_id):
         p.save()
         
     return redirect('match_detail', match_id=match_id)
+
+@login_required
+def delete_match(request, match_id):
+    match = get_object_or_404(Match, pk=match_id)
+    if request.user == match.creator:
+        match.delete()
+    return redirect('match_list')
